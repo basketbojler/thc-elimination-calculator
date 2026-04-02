@@ -498,10 +498,73 @@
             </div>
         </div>
 
+        <div class="card" id="aboutSection">
+            <h2 style="cursor:pointer;" onclick="toggleAbout()">About This Calculator <span id="aboutToggle" style="font-size:0.8rem; color:#888;">[ + expand ]</span></h2>
+            <div id="aboutContent" style="display:none; font-size:0.85rem; line-height:1.8; color:#bbb;">
+                <p style="margin-bottom:12px;">
+                    This calculator estimates THC-COOH (the primary marijuana metabolite detected in urine drug tests) elimination timelines based on your usage pattern and body measurements.
+                </p>
+
+                <h3 style="color:#7eb8ff; font-size:0.9rem; margin:16px 0 8px;">How It Works</h3>
+                <p style="margin-bottom:12px;">
+                    Your inputs are used to classify you into one of three groups from the research, based on estimated initial creatinine-normalized THCCOOH concentration:
+                </p>
+                <ul style="padding-left:20px; margin-bottom:12px;">
+                    <li><span style="color:#4ade80;">0-50 ng/mg</span> - Light users. Average first negative at <strong>0.6 days</strong>, last positive at <strong>4.6 days</strong></li>
+                    <li><span style="color:#fbbf24;">51-150 ng/mg</span> - Regular users. Average first negative at <strong>3.2 days</strong>, last positive at <strong>9.7 days</strong></li>
+                    <li><span style="color:#f87171;">>150 ng/mg</span> - Heavy users. Average first negative at <strong>4.7 days</strong>, last positive at <strong>15.4 days</strong></li>
+                </ul>
+
+                <h3 style="color:#7eb8ff; font-size:0.9rem; margin:16px 0 8px;">Threshold Lines Explained</h3>
+                <ul style="padding-left:20px; margin-bottom:12px;">
+                    <li><span style="color:#ff6b6b;">150 ng/mL</span> - High concentration marker. Above this indicates very recent or heavy use</li>
+                    <li><span style="color:#f87171;">50 ng/mL</span> - Standard immunoassay screening cutoff used in most workplace drug tests (SAMHSA/DOT)</li>
+                    <li><span style="color:#4ade80;">15 ng/mL</span> - GC/MS confirmation cutoff. Some programs and forensic tests use this lower threshold</li>
+                </ul>
+
+                <h3 style="color:#7eb8ff; font-size:0.9rem; margin:16px 0 8px;">Key Research Findings</h3>
+                <ul style="padding-left:20px; margin-bottom:12px;">
+                    <li>60 cannabis users were monitored on a closed research unit under 24h surveillance for up to 30 days</li>
+                    <li>6,158 individual urine specimens were collected and analyzed</li>
+                    <li>In 60% of participants, peak metabolite concentration occurred in the first specimen; in 40%, peaks appeared up to <strong>2.9 days</strong> after last use</li>
+                    <li>BMI significantly correlated with detection time - higher body fat = longer detection due to THC's lipophilicity</li>
+                    <li>Heavy users (>150 ng/mg group) showed detection rates between 60-100% for <strong>28 days</strong> after their first negative test</li>
+                    <li>Concentrations dropped rapidly in the first 3 days, then declined gradually</li>
+                </ul>
+
+                <h3 style="color:#7eb8ff; font-size:0.9rem; margin:16px 0 8px;">Important Limitations</h3>
+                <ul style="padding-left:20px; margin-bottom:12px;">
+                    <li>These are population-level estimates - individual variation is significant</li>
+                    <li>Hydration, diet, exercise, metabolism, and genetics all affect elimination</li>
+                    <li>During terminal elimination, tests can alternate between positive and negative on consecutive days</li>
+                    <li>This tool cannot predict an individual's exact test result</li>
+                </ul>
+
+                <h3 style="color:#7eb8ff; font-size:0.9rem; margin:16px 0 8px;">The Research</h3>
+                <p style="margin-bottom:8px;">
+                    This calculator is based on the following peer-reviewed study:
+                </p>
+                <div style="background:#12121f; padding:14px; border-radius:8px; margin-bottom:12px;">
+                    <p style="margin-bottom:6px;">
+                        <strong style="color:#e0e0e0;">Goodwin RS, Darwin WD, Chiang CN, Shih M, Li SH, Huestis MA.</strong>
+                    </p>
+                    <p style="margin-bottom:6px; color:#aaa;">
+                        "Urinary Elimination of 11-Nor-9-carboxy-9-tetrahydrocannabinol in Cannabis Users During Continuously Monitored Abstinence"
+                    </p>
+                    <p style="margin-bottom:8px; color:#888; font-size:0.8rem;">
+                        <em>Journal of Analytical Toxicology</em>, 2008 October; 32(8): 562-569.<br>
+                        National Institute on Drug Abuse, National Institutes of Health
+                    </p>
+                    <a href="https://pubmed.ncbi.nlm.nih.gov/19007501/" target="_blank" rel="noopener" style="color:#7eb8ff; text-decoration:none; font-size:0.85rem;">
+                        Read the full study on PubMed &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+
         <div class="disclaimer">
-            This calculator provides estimates based on population-level research data
-            (Goodwin et al., J Anal Toxicol, 2008;32(8):562-569). Individual results vary
-            significantly based on metabolism, hydration, diet, exercise, and other factors.
+            This calculator provides estimates based on population-level research data.
+            Individual results vary significantly based on metabolism, hydration, diet, exercise, and other factors.
             This is not medical or legal advice.
         </div>
     </div>
@@ -986,6 +1049,18 @@
                 readoutHTML += `<span${isCurrent ? ' style="color:#fbbf24; font-weight:bold;"' : ''}>Day ${d}: <strong>${displayVal} ng/mg</strong> ${statusStr}${isCurrent ? ' (current)' : ''}</span><br>`;
             });
             readout.innerHTML = readoutHTML;
+        }
+
+        function toggleAbout() {
+            const content = document.getElementById('aboutContent');
+            const toggle = document.getElementById('aboutToggle');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                toggle.textContent = '[ - collapse ]';
+            } else {
+                content.style.display = 'none';
+                toggle.textContent = '[ + expand ]';
+            }
         }
 
         // Initial BMI calc
