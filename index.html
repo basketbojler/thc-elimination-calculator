@@ -237,39 +237,6 @@
             color: #888;
         }
 
-        .prob-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 8px;
-        }
-
-        .prob-table th {
-            text-align: left;
-            padding: 10px 8px;
-            font-size: 0.75rem;
-            color: #888;
-            border-bottom: 1px solid #2a2a4a;
-            font-weight: 500;
-        }
-
-        .prob-table td {
-            padding: 10px 8px;
-            font-size: 0.85rem;
-            border-bottom: 1px solid #1a1a2e;
-        }
-
-        .prob-bar-cell {
-            width: 40%;
-        }
-
-        .prob-bar-bg {
-            width: 100%;
-            height: 6px;
-            background: #2a2a4a;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
         .prob-bar-fill {
             height: 100%;
             border-radius: 3px;
@@ -462,20 +429,6 @@
             </div>
 
             <div class="card">
-                <h2>Daily Detection Probability <span class="info-icon" title="Probability of testing positive (>=50 ng/mL) on each day after abstinence begins">?</span></h2>
-                <table class="prob-table">
-                    <thead>
-                        <tr>
-                            <th>Day</th>
-                            <th>Probability</th>
-                            <th class="prob-bar-cell">Risk Level</th>
-                        </tr>
-                    </thead>
-                    <tbody id="probTableBody"></tbody>
-                </table>
-            </div>
-
-            <div class="card">
                 <h2>Estimated Concentration Curve</h2>
                 <p style="font-size:0.75rem; color:#888; margin-bottom:8px;">Creatinine-normalized THCCOOH (ng/mg) over time</p>
                 <div class="concentration-chart">
@@ -499,37 +452,52 @@
             </div>
         </div>
 
-        <div class="card">
-            <div style="text-align:center; font-size:0.85rem; line-height:1.8; color:#bbb;">
-                <p style="margin-bottom:10px;">
-                    Estimates based on 60 monitored participants and 6,158 urine specimens collected over up to 30 days of confirmed abstinence.
+        <div style="text-align:center; padding:8px 0 4px;">
+            <a href="#" onclick="event.preventDefault(); var el=document.getElementById('howItWorks'); el.style.display=el.style.display==='none'?'block':'none'; this.querySelector('span').textContent=el.style.display==='none'?'\u25BC':'\u25B2';" style="color:#7eb8ff; text-decoration:none; font-size:0.85rem; font-weight:600; display:inline-flex; align-items:center; gap:6px;">
+                How it works <span style="font-size:0.7rem;">&darr;</span>
+            </a>
+        </div>
+
+        <div id="howItWorks" style="display:none;">
+            <div class="card" style="border:1px solid #3a3a5a; background:linear-gradient(180deg, #1a1a2e 0%, #12121f 100%);">
+                <p style="font-size:0.85rem; color:#bbb; line-height:1.7; margin-bottom:16px;">
+                    Your usage frequency, amount, duration, and BMI are used to classify you into one of three research groups. Each group has known detection windows and concentration decay curves. BMI adjusts estimates since higher body fat stores more THC.
                 </p>
-                <p style="color:#888; font-size:0.8rem; margin-bottom:14px;">
-                    Results are population-level estimates. Individual results vary. This is not medical or legal advice.
-                </p>
-                <a href="#" onclick="event.preventDefault(); document.getElementById('howItWorks').style.display = document.getElementById('howItWorks').style.display === 'none' ? 'block' : 'none';" style="color:#7eb8ff; text-decoration:none; font-size:0.9rem; font-weight:600;">
-                    How it works &darr;
-                </a>
-                <div id="howItWorks" style="display:none; text-align:left; margin-top:14px;">
-                    <div style="background:#12121f; padding:14px; border-radius:8px; margin-bottom:14px;">
-                        <p style="margin-bottom:4px;">
-                            <strong style="color:#e0e0e0;">Goodwin RS, Darwin WD, Chiang CN, Shih M, Li SH, Huestis MA.</strong>
-                        </p>
-                        <p style="margin-bottom:4px; color:#aaa;">
-                            "Urinary Elimination of 11-Nor-9-carboxy-9-tetrahydrocannabinol in Cannabis Users During Continuously Monitored Abstinence"
-                        </p>
-                        <p style="margin-bottom:8px; color:#888; font-size:0.8rem;">
-                            <em>J Anal Toxicol.</em> 2008;32(8):562-569 &mdash; NIDA, National Institutes of Health
-                        </p>
-                        <a href="https://pubmed.ncbi.nlm.nih.gov/19007501/" target="_blank" rel="noopener" style="color:#7eb8ff; text-decoration:none;">
-                            Read the full study on PubMed &rarr;
-                        </a>
+
+                <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+                    <div style="flex:1; min-width:100px; background:#1a3a2a; border:1px solid #2a5a3a; border-radius:8px; padding:10px; text-align:center;">
+                        <div style="font-size:0.7rem; color:#4ade80; margin-bottom:4px;">Light</div>
+                        <div style="font-size:1.1rem; font-weight:700; color:#4ade80;">~5 days</div>
+                        <div style="font-size:0.65rem; color:#888;">last positive</div>
                     </div>
-                    <p style="margin-bottom:10px;">
-                        Your usage frequency, amount per session, duration of use, and BMI are used to classify you into one of three research groups. Each group has known average detection windows and concentration decay curves derived from the study data. The calculator then adjusts estimates based on your BMI, since higher body fat stores more THC and extends detection time.
+                    <div style="flex:1; min-width:100px; background:#3a3a1a; border:1px solid #5a5a2a; border-radius:8px; padding:10px; text-align:center;">
+                        <div style="font-size:0.7rem; color:#fbbf24; margin-bottom:4px;">Regular</div>
+                        <div style="font-size:1.1rem; font-weight:700; color:#fbbf24;">~10 days</div>
+                        <div style="font-size:0.65rem; color:#888;">last positive</div>
+                    </div>
+                    <div style="flex:1; min-width:100px; background:#3a1a1a; border:1px solid #5a2a2a; border-radius:8px; padding:10px; text-align:center;">
+                        <div style="font-size:0.7rem; color:#f87171; margin-bottom:4px;">Heavy</div>
+                        <div style="font-size:1.1rem; font-weight:700; color:#f87171;">~15+ days</div>
+                        <div style="font-size:0.65rem; color:#888;">last positive</div>
+                    </div>
+                </div>
+
+                <div style="background:#12121f; border-radius:8px; padding:14px; border:1px solid #2a2a4a;">
+                    <p style="font-size:0.8rem; color:#e0e0e0; margin-bottom:2px; font-weight:600;">
+                        Goodwin et al. (2008)
                     </p>
+                    <p style="font-size:0.75rem; color:#888; margin-bottom:8px;">
+                        <em>J Anal Toxicol.</em> 32(8):562-569 &mdash; NIDA / NIH &mdash; 60 participants, 6,158 specimens
+                    </p>
+                    <a href="https://pubmed.ncbi.nlm.nih.gov/19007501/" target="_blank" rel="noopener" style="color:#7eb8ff; text-decoration:none; font-size:0.8rem;">
+                        Read full study on PubMed &rarr;
+                    </a>
                 </div>
             </div>
+
+            <p style="text-align:center; font-size:0.7rem; color:#555; padding:0 16px 8px; line-height:1.5;">
+                Population-level estimates. Individual results vary based on metabolism, hydration, diet, and exercise. Not medical or legal advice.
+            </p>
         </div>
     </div>
 
@@ -749,40 +717,6 @@
             document.getElementById('timelineFill').style.width = progress + '%';
             document.getElementById('timelineNeg').textContent = `1st Neg: Day ${firstNegDay.toFixed(1)}`;
             document.getElementById('timelinePos').textContent = `Last Pos: Day ${lastPosDay.toFixed(1)}`;
-
-            // Probability table
-            const tbody = document.getElementById('probTableBody');
-            tbody.innerHTML = '';
-            const daysToShow = [0, 1, 2, 3, 5, 7, 10, 14, 21, 28];
-            daysToShow.forEach(day => {
-                let prob;
-                if (day < firstNegDay) {
-                    prob = 95 + Math.random() * 5;
-                } else {
-                    const idx = Math.min(Math.floor(day - firstNegDay), data.detectionRates.length - 1);
-                    prob = day >= firstNegDay ? data.detectionRates[Math.max(0, idx)] : 98;
-                }
-                prob = Math.max(0, Math.min(100, prob));
-
-                // BMI adjustment on probability
-                if (bmi > 30) prob = Math.min(100, prob * 1.1);
-                if (bmi < 20) prob = Math.max(0, prob * 0.9);
-
-                const probColor = prob > 60 ? 'prob-high' : prob > 25 ? 'prob-mid' : 'prob-low';
-                const isCurrentDay = day === Math.floor(daysSince);
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="${isCurrentDay ? 'current-day-marker' : ''}">Day ${day} ${isCurrentDay ? '(now)' : ''}</td>
-                    <td>${Math.round(prob)}%</td>
-                    <td class="prob-bar-cell">
-                        <div class="prob-bar-bg">
-                            <div class="prob-bar-fill ${probColor}" style="width:${prob}%"></div>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
 
             // Concentration chart
             drawChart(group, estInitConc, daysSince, bmi);
