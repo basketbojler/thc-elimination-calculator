@@ -290,6 +290,7 @@
         .concentration-chart canvas {
             width: 100%;
             height: 100%;
+            cursor: crosshair;
         }
 
         .disclaimer {
@@ -817,6 +818,9 @@
             document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
+        // Store chart state for hover interaction
+        let chartState = null;
+
         function drawChart(group, initialConc, daysSince, bmi) {
             const canvas = document.getElementById('chartCanvas');
             const ctx = canvas.getContext('2d');
@@ -1012,7 +1016,135 @@
                 readoutHTML += `<span${isCurrent ? ' style="color:#fbbf24; font-weight:bold;"' : ''}>Day ${d}: <strong>${displayVal} ng/mg</strong> ${statusStr}${isCurrent ? ' (current)' : ''}</span><br>`;
             });
             readout.innerHTML = readoutHTML;
+
+            // Save state for hover interaction
+            chartState = { adjustedCurve, maxConc, pad, plotW, plotH, w, h, daysSince, group, initialConc, bmi };
         }
+
+        // Hover interaction
+        (function() {
+            const canvas = document.getElementById('chartCanvas');
+            let hoverActive = false;
+
+            function getConc(mouseX) {
+                if (!chartState) return null;
+                const s = chartState;
+                const rect = canvas.getBoundingClientRect();
+                const x = mouseX - rect.left;
+                const day = ((x - s.pad.left) / s.plotW) * 30;
+                if (day < 0 || day > 30) return null;
+                const idx = Math.floor(day);
+                const frac = day - idx;
+                const next = Math.min(idx + 1, s.adjustedCurve.length - 1);
+                const clamped = Math.max(0, Math.min(idx, s.adjustedCurve.length - 1));
+                const val = s.adjustedCurve[clamped] * (1 - frac) + s.adjustedCurve[next] * frac;
+                return { day, val, x };
+            }
+
+            function drawTooltip(mouseX) {
+                if (!chartState) return;
+                const info = getConc(mouseX);
+                if (!info) return;
+                // Redraw chart then overlay tooltip
+                drawChart(chartState.group, chartState.initialConc, chartState.daysSince, chartState.bmi);
+                const s = chartState;
+                const ctx = canvas.getContext('2d');
+                const dpr = window.devicePixelRatio || 1;
+                ctx.save();
+                ctx.scale(dpr, dpr);
+
+                const cy = s.pad.top + s.plotH * (1 - info.val / s.maxConc);
+
+                // Vertical line
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath();
+                ctx.moveTo(info.x, s.pad.top);
+                ctx.lineTo(info.x, s.pad.top + s.plotH);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Dot on curve
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(info.x, cy, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#7eb8ff';
+                ctx.beginPath();
+                ctx.arc(info.x, cy, 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Tooltip box
+                const displayVal = info.val >= 10 ? Math.round(info.val) : info.val.toFixed(1);
+                const dayStr = 'Day ' + info.day.toFixed(1);
+                const valStr = displayVal + ' ng/mg';
+                let status = info.val >= 150 ? 'ABOVE 150' : info.val >= 50 ? 'ABOVE 50' : info.val >= 15 ? 'ABOVE 15' : 'BELOW 15';
+
+                ctx.font = 'bold 11px sans-serif';
+                const textW = Math.max(ctx.measureText(dayStr).width, ctx.measureText(valStr).width, ctx.measureText(status).width);
+                const boxW = textW + 20;
+                const boxH = 52;
+                let boxX = info.x - boxW / 2;
+                let boxY = cy - boxH - 12;
+                // Keep in bounds
+                if (boxX < s.pad.left) boxX = s.pad.left;
+                if (boxX + boxW > s.pad.left + s.plotW) boxX = s.pad.left + s.plotW - boxW;
+                if (boxY < 0) boxY = cy + 12;
+
+                // Shadow
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.beginPath();
+                ctx.roundRect(boxX, boxY, boxW, boxH, 6);
+                ctx.fill();
+                ctx.strokeStyle = '#7eb8ff';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.roundRect(boxX, boxY, boxW, boxH, 6);
+                ctx.stroke();
+
+                // Text
+                ctx.textAlign = 'center';
+                const cx = boxX + boxW / 2;
+                ctx.fillStyle = '#aaa';
+                ctx.font = '10px sans-serif';
+                ctx.fillText(dayStr, cx, boxY + 15);
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.fillText(valStr, cx, boxY + 31);
+                ctx.fillStyle = info.val >= 150 ? '#ff6b6b' : info.val >= 50 ? '#f87171' : info.val >= 15 ? '#fbbf24' : '#4ade80';
+                ctx.font = 'bold 9px sans-serif';
+                ctx.fillText(status, cx, boxY + 45);
+
+                ctx.restore();
+            }
+
+            canvas.addEventListener('mousemove', function(e) {
+                hoverActive = true;
+                drawTooltip(e.clientX);
+            });
+
+            canvas.addEventListener('mouseleave', function() {
+                if (hoverActive && chartState) {
+                    hoverActive = false;
+                    drawChart(chartState.group, chartState.initialConc, chartState.daysSince, chartState.bmi);
+                }
+            });
+
+            // Touch support for mobile
+            canvas.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                hoverActive = true;
+                drawTooltip(e.touches[0].clientX);
+            }, { passive: false });
+
+            canvas.addEventListener('touchend', function() {
+                if (hoverActive && chartState) {
+                    hoverActive = false;
+                    drawChart(chartState.group, chartState.initialConc, chartState.daysSince, chartState.bmi);
+                }
+            });
+        })();
 
         // Initial BMI calc
         updateBMI();
