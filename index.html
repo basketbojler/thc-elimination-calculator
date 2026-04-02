@@ -394,22 +394,56 @@
 
             <div class="card">
                 <h2>Detection Window</h2>
-                <div class="stat-grid">
-                    <div class="stat-box">
-                        <div class="value" id="firstNegDay">--</div>
-                        <div class="label">Est. First Negative<br>(days)</div>
+
+                <div style="margin-bottom:14px; padding:12px; background:#12121f; border-radius:10px; border-left:3px solid #ff6b6b;">
+                    <div style="font-size:0.75rem; color:#ff6b6b; margin-bottom:6px; font-weight:600;">150 ng/mL Threshold</div>
+                    <div class="stat-grid" style="margin-bottom:0;">
+                        <div class="stat-box" style="background:#1a1a2e;">
+                            <div class="value" id="below150Day" style="color:#ff6b6b;">--</div>
+                            <div class="label">Est. Days to<br>Drop Below 150</div>
+                        </div>
+                        <div class="stat-box" style="background:#1a1a2e;">
+                            <div class="value" id="concAt150Status" style="color:#ff6b6b;">--</div>
+                            <div class="label">Current Status<br>(at day <span class="currentDaySpan">0</span>)</div>
+                        </div>
                     </div>
-                    <div class="stat-box">
-                        <div class="value" id="lastPosDay">--</div>
-                        <div class="label">Est. Last Positive<br>(days)</div>
+                </div>
+
+                <div style="margin-bottom:14px; padding:12px; background:#12121f; border-radius:10px; border-left:3px solid #f87171;">
+                    <div style="font-size:0.75rem; color:#f87171; margin-bottom:6px; font-weight:600;">50 ng/mL Threshold (Standard Drug Test)</div>
+                    <div class="stat-grid" style="margin-bottom:0;">
+                        <div class="stat-box" style="background:#1a1a2e;">
+                            <div class="value" id="firstNegDay" style="color:#f87171;">--</div>
+                            <div class="label">Est. First Negative<br>(days)</div>
+                        </div>
+                        <div class="stat-box" style="background:#1a1a2e;">
+                            <div class="value" id="lastPosDay" style="color:#f87171;">--</div>
+                            <div class="label">Est. Last Positive<br>(days)</div>
+                        </div>
                     </div>
-                    <div class="stat-box">
-                        <div class="value" id="detectionWindow">--</div>
-                        <div class="label">Detection Window<br>(days range)</div>
+                    <div class="stat-grid" style="margin-bottom:0; margin-top:8px;">
+                        <div class="stat-box" style="background:#1a1a2e;">
+                            <div class="value" id="detectionWindow">--</div>
+                            <div class="label">Detection Window<br>(days range)</div>
+                        </div>
+                        <div class="stat-box" style="background:#1a1a2e;">
+                            <div class="value" id="currentStatus">--</div>
+                            <div class="label">Current Status<br>(at day <span class="currentDaySpan">0</span>)</div>
+                        </div>
                     </div>
-                    <div class="stat-box">
-                        <div class="value" id="currentStatus">--</div>
-                        <div class="label">Current Status<br>(at day <span id="currentDaySpan">0</span>)</div>
+                </div>
+
+                <div style="margin-bottom:14px; padding:12px; background:#12121f; border-radius:10px; border-left:3px solid #4ade80;">
+                    <div style="font-size:0.75rem; color:#4ade80; margin-bottom:6px; font-weight:600;">15 ng/mL Threshold (Confirmation / Forensic)</div>
+                    <div class="stat-grid" style="margin-bottom:0;">
+                        <div class="stat-box" style="background:#1a1a2e;">
+                            <div class="value" id="below15Day" style="color:#4ade80;">--</div>
+                            <div class="label">Est. Days to<br>Drop Below 15</div>
+                        </div>
+                        <div class="stat-box" style="background:#1a1a2e;">
+                            <div class="value" id="concAt15Status" style="color:#4ade80;">--</div>
+                            <div class="label">Current Status<br>(at day <span class="currentDaySpan">0</span>)</div>
+                        </div>
                     </div>
                 </div>
 
@@ -422,8 +456,8 @@
                         <div class="timeline-fill" id="timelineFill" style="width:0%; background: linear-gradient(90deg, #f87171, #fbbf24, #4ade80);"></div>
                     </div>
                     <div class="timeline-labels">
-                        <span id="timelineNeg" style="color:#fbbf24;">1st Negative: --</span>
-                        <span id="timelinePos" style="color:#f87171;">Last Positive: --</span>
+                        <span id="timelineNeg" style="color:#fbbf24;">1st Neg (50): --</span>
+                        <span id="timelinePos" style="color:#f87171;">Last Pos (50): --</span>
                     </div>
                 </div>
             </div>
@@ -679,35 +713,83 @@
             };
             document.getElementById('groupExplain').textContent = explanations[group];
 
-            // Stats
+            // Build the adjusted concentration curve for threshold calculations
+            const curve = groupData[group].concCurve;
+            const scaleF = estInitConc / curve[0];
+            const scaledCurve = curve.map(v => v * scaleF);
+            const bmiScaleF = 1 + Math.max(0, (bmi - 25) * 0.015);
+            const estCurve = [];
+            for (let i = 0; i < 31; i++) {
+                const srcIdx = i / bmiScaleF;
+                const lo = Math.floor(srcIdx);
+                const hi = Math.min(lo + 1, scaledCurve.length - 1);
+                const fr = srcIdx - lo;
+                estCurve.push(scaledCurve[lo] * (1 - fr) + scaledCurve[hi] * fr);
+            }
+
+            // Find day curve drops below a threshold (interpolated)
+            function findDropDay(threshold) {
+                if (estCurve[0] < threshold) return 0;
+                for (let i = 1; i < estCurve.length; i++) {
+                    if (estCurve[i] < threshold) {
+                        const frac = (threshold - estCurve[i]) / (estCurve[i - 1] - estCurve[i]);
+                        return i - frac;
+                    }
+                }
+                return 30; // still above at day 30
+            }
+
+            // Get estimated concentration at a specific day
+            function getConcAtDay(day) {
+                if (day >= estCurve.length - 1) return estCurve[estCurve.length - 1];
+                const idx = Math.floor(day);
+                const fr = day - idx;
+                return estCurve[idx] * (1 - fr) + estCurve[idx + 1] * fr;
+            }
+
+            const drop150 = findDropDay(150);
+            const drop50first = firstNegDay;
+            const drop50last = lastPosDay;
+            const drop15 = findDropDay(15);
+            const currentConc = getConcAtDay(daysSince);
+
+            // Update all day spans
+            document.querySelectorAll('.currentDaySpan').forEach(el => el.textContent = daysSince);
+
+            // 150 threshold
+            document.getElementById('below150Day').textContent = estCurve[0] < 150 ? 'N/A' : drop150.toFixed(1);
+            const status150El = document.getElementById('concAt150Status');
+            if (currentConc >= 150) {
+                status150El.textContent = 'ABOVE';
+                status150El.style.color = '#ff6b6b';
+            } else {
+                status150El.textContent = 'BELOW';
+                status150El.style.color = '#4ade80';
+            }
+
+            // 50 threshold
             document.getElementById('firstNegDay').textContent = firstNegDay.toFixed(1);
             document.getElementById('lastPosDay').textContent = lastPosDay.toFixed(1);
             document.getElementById('detectionWindow').textContent = `${firstNegDay.toFixed(0)}-${lastPosDay.toFixed(0)}`;
-            document.getElementById('currentDaySpan').textContent = daysSince;
-
-            // Current status estimate
-            let currentProb;
-            if (daysSince < firstNegDay) {
-                currentProb = 95;
-            } else if (daysSince > lastPosDay + data.lastPos.sd) {
-                currentProb = 2;
-            } else {
-                const idx = Math.min(Math.floor(daysSince), data.detectionRates.length - 1);
-                const rateAfterFirstNeg = daysSince >= firstNegDay ?
-                    data.detectionRates[Math.min(Math.floor(daysSince - firstNegDay), data.detectionRates.length - 1)] : 95;
-                currentProb = rateAfterFirstNeg;
-            }
 
             const statusEl = document.getElementById('currentStatus');
-            if (currentProb > 70) {
-                statusEl.textContent = 'Likely +';
+            if (currentConc >= 50) {
+                statusEl.textContent = 'ABOVE';
                 statusEl.style.color = '#f87171';
-            } else if (currentProb > 30) {
-                statusEl.textContent = 'Uncertain';
-                statusEl.style.color = '#fbbf24';
             } else {
-                statusEl.textContent = 'Likely -';
+                statusEl.textContent = 'BELOW';
                 statusEl.style.color = '#4ade80';
+            }
+
+            // 15 threshold
+            document.getElementById('below15Day').textContent = drop15.toFixed(1);
+            const status15El = document.getElementById('concAt15Status');
+            if (currentConc >= 15) {
+                status15El.textContent = 'ABOVE';
+                status15El.style.color = '#fbbf24';
+            } else {
+                status15El.textContent = 'BELOW';
+                status15El.style.color = '#4ade80';
             }
 
             // Timeline
