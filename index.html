@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THC-COOH Elimination Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        header {
+            text-align: center;
+            padding: 24px 0 16px;
+        }
+
+        header h1 {
+            font-size: 1.4rem;
+            color: #7eb8ff;
+            margin-bottom: 4px;
+        }
+
+        header p {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .card {
+            background: #1a1a2e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #2a2a4a;
+        }
+
+        .card h2 {
+            font-size: 1rem;
+            color: #7eb8ff;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #3a3a5a;
+            background: #12121f;
+            color: #e0e0e0;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #7eb8ff;
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .row .form-group {
+            flex: 1;
+        }
+
+        .unit-toggle {
+            display: flex;
+            background: #12121f;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #3a3a5a;
+            margin-bottom: 16px;
+        }
+
+        .unit-toggle button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            color: #888;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .unit-toggle button.active {
+            background: #7eb8ff;
+            color: #0f0f1a;
+            font-weight: 600;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #4a7fff, #7eb8ff);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .calculate-btn:hover {
+            opacity: 0.9;
+        }
+
+        .calculate-btn:active {
+            transform: scale(0.98);
+        }
+
+        #results {
+            display: none;
+        }
+
+        .result-header {
+            text-align: center;
+            padding: 8px 0 16px;
+        }
+
+        .result-header .group-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .group-low {
+            background: #1a3a2a;
+            color: #4ade80;
+            border: 1px solid #2a5a3a;
+        }
+
+        .group-mid {
+            background: #3a3a1a;
+            color: #fbbf24;
+            border: 1px solid #5a5a2a;
+        }
+
+        .group-high {
+            background: #3a1a1a;
+            color: #f87171;
+            border: 1px solid #5a2a2a;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .stat-box {
+            background: #12121f;
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .stat-box .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #7eb8ff;
+        }
+
+        .stat-box .label {
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 4px;
+            line-height: 1.3;
+        }
+
+        .stat-box.full {
+            grid-column: 1 / -1;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 16px 0;
+        }
+
+        .timeline-bar {
+            width: 100%;
+            height: 8px;
+            background: #2a2a4a;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .timeline-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .timeline-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: #888;
+        }
+
+        .prob-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        .prob-table th {
+            text-align: left;
+            padding: 10px 8px;
+            font-size: 0.75rem;
+            color: #888;
+            border-bottom: 1px solid #2a2a4a;
+            font-weight: 500;
+        }
+
+        .prob-table td {
+            padding: 10px 8px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #1a1a2e;
+        }
+
+        .prob-bar-cell {
+            width: 40%;
+        }
+
+        .prob-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: #2a2a4a;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .prob-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .prob-high { background: #f87171; }
+        .prob-mid { background: #fbbf24; }
+        .prob-low { background: #4ade80; }
+
+        .concentration-chart {
+            width: 100%;
+            height: 260px;
+            position: relative;
+            margin-top: 12px;
+        }
+
+        .concentration-chart canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .disclaimer {
+            font-size: 0.7rem;
+            color: #666;
+            text-align: center;
+            padding: 16px;
+            line-height: 1.5;
+        }
+
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #2a2a4a;
+            font-size: 0.65rem;
+            color: #888;
+            cursor: help;
+        }
+
+        .bmi-display {
+            font-size: 0.8rem;
+            color: #7eb8ff;
+            text-align: right;
+            margin-top: -8px;
+            margin-bottom: 12px;
+        }
+
+        .current-day-marker {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+
+        @media (max-width: 380px) {
+            .container { padding: 10px; }
+            .stat-grid { gap: 8px; }
+            .stat-box .value { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>THC-COOH Elimination Calculator</h1>
+            <p>Based on Goodwin et al. (2008) - NIH Clinical Research</p>
+        </header>
+
+        <div class="card">
+            <h2>Usage History</h2>
+
+            <div class="form-group">
+                <label>How often do you use?</label>
+                <select id="usageFreq">
+                    <option value="1">Once a month or less</option>
+                    <option value="2">A few times a month</option>
+                    <option value="3">1-2 days per week</option>
+                    <option value="4">3-4 days per week</option>
+                    <option value="5" selected>5-6 days per week</option>
+                    <option value="6">Every day</option>
+                    <option value="7">Multiple times every day</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>How much per session?</label>
+                <select id="amountPerSession">
+                    <option value="1">A few hits (shared joint, small bowl)</option>
+                    <option value="2" selected>About half a joint / bowl</option>
+                    <option value="3">1 full joint / bowl</option>
+                    <option value="4">2+ joints / multiple bowls</option>
+                    <option value="5">Heavy (dabs, concentrates, edibles, or 3+ joints)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>How long have you been using at this rate?</label>
+                <select id="usageDuration">
+                    <option value="1">Less than a month</option>
+                    <option value="2">1-3 months</option>
+                    <option value="3" selected>3-12 months</option>
+                    <option value="4">1-5 years</option>
+                    <option value="5">5+ years</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Days since last use</label>
+                <input type="number" id="daysSince" placeholder="e.g. 0" min="0" max="90" value="0">
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Body Measurements</h2>
+
+            <div class="unit-toggle" id="unitToggle">
+                <button class="active" data-unit="imperial" onclick="setUnit('imperial')">Imperial (lbs/in)</button>
+                <button data-unit="metric" onclick="setUnit('metric')">Metric (kg/cm)</button>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label id="weightLabel">Weight (lbs)</label>
+                    <input type="number" id="weight" placeholder="170" min="50" max="500" value="170">
+                </div>
+                <div class="form-group">
+                    <label id="heightLabel">Height (inches)</label>
+                    <input type="number" id="height" placeholder="69" min="36" max="250" value="69">
+                </div>
+            </div>
+            <div class="bmi-display" id="bmiDisplay">BMI: --</div>
+
+            <div class="form-group">
+                <label>Sex</label>
+                <select id="sex">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="calculate-btn" onclick="calculate()">Calculate Elimination Estimate</button>
+
+        <div id="results">
+            <div class="card">
+                <div class="result-header">
+                    <h2 style="justify-content:center;">Estimated Classification</h2>
+                    <div id="groupBadge" class="group-badge"></div>
+                    <p style="font-size:0.8rem; color:#aaa; margin-top:10px;" id="groupExplain"></p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Detection Window</h2>
+                <div class="stat-grid">
+                    <div class="stat-box">
+                        <div class="value" id="firstNegDay">--</div>
+                        <div class="label">Est. First Negative<br>(days)</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="value" id="lastPosDay">--</div>
+                        <div class="label">Est. Last Positive<br>(days)</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="value" id="detectionWindow">--</div>
+                        <div class="label">Detection Window<br>(days range)</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="value" id="currentStatus">--</div>
+                        <div class="label">Current Status<br>(at day <span id="currentDaySpan">0</span>)</div>
+                    </div>
+                </div>
+
+                <div class="timeline">
+                    <div class="timeline-labels">
+                        <span>Day 0</span>
+                        <span id="timelineEnd">Day 30</span>
+                    </div>
+                    <div class="timeline-bar">
+                        <div class="timeline-fill" id="timelineFill" style="width:0%; background: linear-gradient(90deg, #f87171, #fbbf24, #4ade80);"></div>
+                    </div>
+                    <div class="timeline-labels">
+                        <span id="timelineNeg" style="color:#fbbf24;">1st Negative: --</span>
+                        <span id="timelinePos" style="color:#f87171;">Last Positive: --</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Daily Detection Probability <span class="info-icon" title="Probability of testing positive (>=50 ng/mL) on each day after abstinence begins">?</span></h2>
+                <table class="prob-table">
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Probability</th>
+                            <th class="prob-bar-cell">Risk Level</th>
+                        </tr>
+                    </thead>
+                    <tbody id="probTableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2>Estimated Concentration Curve</h2>
+                <p style="font-size:0.75rem; color:#888; margin-bottom:8px;">Creatinine-normalized THCCOOH (ng/mg) over time</p>
+                <div class="concentration-chart">
+                    <canvas id="chartCanvas"></canvas>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#666; margin-top:4px;">
+                    <span>Day 0</span>
+                    <span>Day 30</span>
+                </div>
+                <div style="text-align:center; font-size:0.7rem; color:#666; margin-top:8px; line-height:1.8;">
+                    <span style="color:#ff6b6b;">&#9644;</span> 150 ng/mL &nbsp;
+                    <span style="color:#f87171;">&#9644;</span> 50 ng/mL &nbsp;
+                    <span style="color:#4ade80;">&#9644;</span> 15 ng/mL
+                </div>
+                <div id="concReadout" style="margin-top:12px; padding:12px; background:#12121f; border-radius:8px; font-size:0.85rem; line-height:1.8; display:none;"></div>
+            </div>
+
+            <div class="card">
+                <h2>Key Factors</h2>
+                <div id="factorsList" style="font-size:0.85rem; line-height:1.8;"></div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            This calculator provides estimates based on population-level research data
+            (Goodwin et al., J Anal Toxicol, 2008;32(8):562-569). Individual results vary
+            significantly based on metabolism, hydration, diet, exercise, and other factors.
+            This is not medical or legal advice.
+        </div>
+    </div>
+
+    <script>
+        let currentUnit = 'imperial';
+
+        function setUnit(unit) {
+            currentUnit = unit;
+            document.querySelectorAll('#unitToggle button').forEach(b => {
+                b.classList.toggle('active', b.dataset.unit === unit);
+            });
+            if (unit === 'metric') {
+                document.getElementById('weightLabel').textContent = 'Weight (kg)';
+                document.getElementById('heightLabel').textContent = 'Height (cm)';
+                document.getElementById('weight').placeholder = '77';
+                document.getElementById('height').placeholder = '175';
+            } else {
+                document.getElementById('weightLabel').textContent = 'Weight (lbs)';
+                document.getElementById('heightLabel').textContent = 'Height (inches)';
+                document.getElementById('weight').placeholder = '170';
+                document.getElementById('height').placeholder = '69';
+            }
+            updateBMI();
+        }
+
+        function getBMI() {
+            let w = parseFloat(document.getElementById('weight').value);
+            let h = parseFloat(document.getElementById('height').value);
+            if (!w || !h) return 25;
+            if (currentUnit === 'imperial') {
+                return (w / (h * h)) * 703;
+            } else {
+                return w / ((h / 100) * (h / 100));
+            }
+        }
+
+        function updateBMI() {
+            const bmi = getBMI();
+            document.getElementById('bmiDisplay').textContent = `BMI: ${bmi.toFixed(1)}`;
+        }
+
+        document.getElementById('weight').addEventListener('input', updateBMI);
+        document.getElementById('height').addEventListener('input', updateBMI);
+
+        // Research data from Goodwin et al. 2008
+        // Group definitions based on creatinine-normalized THCCOOH in first specimen
+        const groupData = {
+            low: { // 0-50 ng/mg
+                label: '0-50 ng/mg',
+                firstNeg: { mean: 0.6, sd: 0.8 },
+                lastPos: { mean: 4.6, sd: 5.6 },
+                cmaxBetween: { mean: 23.6, sd: 9.3 },
+                initialConc: { mean: 23.7, sd: 15.9 },
+                detectionRates: [57.6, 42, 30, 20, 12, 8, 5, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                // Approximate concentration decay (ng/mg) from Figure 3 Panel A
+                concCurve: [20, 14, 10, 7, 5, 4, 3.5, 3, 2.5, 2, 1.8, 1.5, 1.3, 1.1, 1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.4, 0.3, 0.3, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.1]
+            },
+            mid: { // 51-150 ng/mg
+                label: '51-150 ng/mg',
+                firstNeg: { mean: 3.2, sd: 2.8 },
+                lastPos: { mean: 9.7, sd: 6.4 },
+                cmaxBetween: { mean: 53.4, sd: 34.5 },
+                initialConc: { mean: 97.2, sd: 22.6 },
+                detectionRates: [73.4, 65, 55, 48, 42, 38, 35, 30, 28, 25, 22, 20, 18, 15, 33, 28, 22, 18, 15, 25, 20, 30, 25, 20, 18, 15, 10, 8, 5],
+                // Approximate from Figure 3 Panel B
+                concCurve: [75, 55, 35, 22, 15, 12, 10, 8, 7, 6, 5.5, 5, 4.5, 4, 3.5, 3, 2.8, 2.5, 2.2, 2, 1.8, 1.5, 1.3, 1.1, 1, 0.8, 0.6, 0.5, 0.4, 0.3, 0.2]
+            },
+            high: { // >150 ng/mg
+                label: '>150 ng/mg',
+                firstNeg: { mean: 4.7, sd: 4.8 },
+                lastPos: { mean: 15.4, sd: 9.8 },
+                cmaxBetween: { mean: 96.4, sd: 76.7 },
+                initialConc: { mean: 339.8, sd: 247.3 },
+                detectionRates: [79.8, 78, 75, 72, 70, 68, 65, 62, 68, 72, 65, 60, 65, 70, 68, 65, 72, 70, 68, 75, 70, 62, 60, 65, 68, 65, 62, 60, 60],
+                // Approximate from Figure 3 Panel C
+                concCurve: [250, 150, 100, 80, 65, 55, 50, 45, 42, 40, 38, 36, 35, 34, 33, 32, 30, 28, 27, 26, 25, 24, 23, 22, 22, 21, 20, 20, 19, 18, 18]
+            }
+        };
+
+        function getUserInputs() {
+            const freq = parseInt(document.getElementById('usageFreq').value);      // 1-7
+            const amount = parseInt(document.getElementById('amountPerSession').value); // 1-5
+            const duration = parseInt(document.getElementById('usageDuration').value);  // 1-5
+            const daysSince = parseFloat(document.getElementById('daysSince').value) || 0;
+            const bmi = getBMI();
+            const sex = document.getElementById('sex').value;
+
+            // Convert to equivalent research values for the model
+            // Estimate equivalent joints/week from frequency x amount
+            const freqToTimesPerWeek = [0, 0.25, 0.75, 1.5, 3.5, 5.5, 7, 14];
+            const timesPerWeek = freqToTimesPerWeek[freq];
+            const amountMultiplier = [0, 0.3, 0.5, 1, 2, 3.5];
+            const jointsWeek = timesPerWeek * amountMultiplier[amount];
+
+            // Estimate days used in last 14 from frequency
+            const freqToDays14 = [0, 1, 2, 3, 7, 11, 14, 14];
+            const daysUsed = freqToDays14[freq];
+
+            return { freq, amount, duration, daysSince, bmi, sex, jointsWeek, daysUsed };
+        }
+
+        function estimateGroup(inputs) {
+            // Score based on all three usage dimensions + BMI
+            let score = 0;
+
+            // Frequency (1-7) mapped to score contribution
+            const freqScores = [0, 1, 1, 2, 3, 3, 4, 5];
+            score += freqScores[inputs.freq];
+
+            // Amount per session (1-5)
+            const amountScores = [0, 1, 1, 2, 3, 4];
+            score += amountScores[inputs.amount];
+
+            // Duration of use at this rate (1-5) - longer = more fat storage
+            const durationScores = [0, 0, 1, 2, 3, 4];
+            score += durationScores[inputs.duration];
+
+            // BMI adjustment - higher BMI = more stored THC
+            if (inputs.bmi > 30) score += 2;
+            else if (inputs.bmi > 25) score += 1;
+
+            // Classify: total possible = 5+4+4+2 = 15
+            if (score <= 4) return 'low';
+            if (score <= 8) return 'mid';
+            return 'high';
+        }
+
+        function adjustForBMI(baseDays, bmi) {
+            const avgBMI = 25.5;
+            const bmiDiff = bmi - avgBMI;
+            const adjustment = bmiDiff * 0.15;
+            return Math.max(0, baseDays + adjustment);
+        }
+
+        function estimateInitialConcentration(group, inputs) {
+            const data = groupData[group];
+
+            // Intensity from 0-1 based on frequency, amount, and duration
+            const freqNorm = (inputs.freq - 1) / 6;
+            const amountNorm = (inputs.amount - 1) / 4;
+            const durationNorm = (inputs.duration - 1) / 4;
+            const intensity = freqNorm * 0.4 + amountNorm * 0.35 + durationNorm * 0.25;
+
+            let conc = data.initialConc.mean - data.initialConc.sd + (intensity * 2 * data.initialConc.sd);
+            conc = Math.max(group === 'low' ? 1 : (group === 'mid' ? 51 : 151), conc);
+
+            // BMI adjustment
+            if (inputs.bmi > 25) conc *= 1 + (inputs.bmi - 25) * 0.02;
+
+            return conc;
+        }
+
+        function calculate() {
+            const inputs = getUserInputs();
+            const daysSince = inputs.daysSince;
+            const bmi = inputs.bmi;
+
+            const group = estimateGroup(inputs);
+            const data = groupData[group];
+
+            // Estimate detection windows adjusted for BMI
+            const firstNegDay = adjustForBMI(data.firstNeg.mean, bmi);
+            const lastPosDay = adjustForBMI(data.lastPos.mean, bmi);
+
+            const estInitConc = estimateInitialConcentration(group, inputs);
+
+            // Show results
+            document.getElementById('results').style.display = 'block';
+
+            // Group badge
+            const badge = document.getElementById('groupBadge');
+            badge.textContent = `Group: ${data.label} (estimated initial ${Math.round(estInitConc)} ng/mg)`;
+            badge.className = 'group-badge ' + (group === 'low' ? 'group-low' : group === 'mid' ? 'group-mid' : 'group-high');
+
+            const explanations = {
+                low: 'Light to moderate use pattern. Expect shorter detection windows with rapid clearance.',
+                mid: 'Moderate to regular use pattern. Detection may persist with intermittent positive/negative results.',
+                high: 'Heavy/daily use pattern. Extended detection windows with high probability of positive results for weeks.'
+            };
+            document.getElementById('groupExplain').textContent = explanations[group];
+
+            // Stats
+            document.getElementById('firstNegDay').textContent = firstNegDay.toFixed(1);
+            document.getElementById('lastPosDay').textContent = lastPosDay.toFixed(1);
+            document.getElementById('detectionWindow').textContent = `${firstNegDay.toFixed(0)}-${lastPosDay.toFixed(0)}`;
+            document.getElementById('currentDaySpan').textContent = daysSince;
+
+            // Current status estimate
+            let currentProb;
+            if (daysSince < firstNegDay) {
+                currentProb = 95;
+            } else if (daysSince > lastPosDay + data.lastPos.sd) {
+                currentProb = 2;
+            } else {
+                const idx = Math.min(Math.floor(daysSince), data.detectionRates.length - 1);
+                const rateAfterFirstNeg = daysSince >= firstNegDay ?
+                    data.detectionRates[Math.min(Math.floor(daysSince - firstNegDay), data.detectionRates.length - 1)] : 95;
+                currentProb = rateAfterFirstNeg;
+            }
+
+            const statusEl = document.getElementById('currentStatus');
+            if (currentProb > 70) {
+                statusEl.textContent = 'Likely +';
+                statusEl.style.color = '#f87171';
+            } else if (currentProb > 30) {
+                statusEl.textContent = 'Uncertain';
+                statusEl.style.color = '#fbbf24';
+            } else {
+                statusEl.textContent = 'Likely -';
+                statusEl.style.color = '#4ade80';
+            }
+
+            // Timeline
+            const maxDay = Math.max(30, lastPosDay + 5);
+            document.getElementById('timelineEnd').textContent = `Day ${Math.round(maxDay)}`;
+            const progress = Math.min(100, (daysSince / maxDay) * 100);
+            document.getElementById('timelineFill').style.width = progress + '%';
+            document.getElementById('timelineNeg').textContent = `1st Neg: Day ${firstNegDay.toFixed(1)}`;
+            document.getElementById('timelinePos').textContent = `Last Pos: Day ${lastPosDay.toFixed(1)}`;
+
+            // Probability table
+            const tbody = document.getElementById('probTableBody');
+            tbody.innerHTML = '';
+            const daysToShow = [0, 1, 2, 3, 5, 7, 10, 14, 21, 28];
+            daysToShow.forEach(day => {
+                let prob;
+                if (day < firstNegDay) {
+                    prob = 95 + Math.random() * 5;
+                } else {
+                    const idx = Math.min(Math.floor(day - firstNegDay), data.detectionRates.length - 1);
+                    prob = day >= firstNegDay ? data.detectionRates[Math.max(0, idx)] : 98;
+                }
+                prob = Math.max(0, Math.min(100, prob));
+
+                // BMI adjustment on probability
+                if (bmi > 30) prob = Math.min(100, prob * 1.1);
+                if (bmi < 20) prob = Math.max(0, prob * 0.9);
+
+                const probColor = prob > 60 ? 'prob-high' : prob > 25 ? 'prob-mid' : 'prob-low';
+                const isCurrentDay = day === Math.floor(daysSince);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="${isCurrentDay ? 'current-day-marker' : ''}">Day ${day} ${isCurrentDay ? '(now)' : ''}</td>
+                    <td>${Math.round(prob)}%</td>
+                    <td class="prob-bar-cell">
+                        <div class="prob-bar-bg">
+                            <div class="prob-bar-fill ${probColor}" style="width:${prob}%"></div>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Concentration chart
+            drawChart(group, estInitConc, daysSince, bmi);
+
+            // Key factors
+            const factors = [];
+            if (bmi > 30) factors.push('<span style="color:#f87171;">&#9679;</span> High BMI ('+bmi.toFixed(1)+') - THC stored in fat tissue extends detection time');
+            else if (bmi > 25) factors.push('<span style="color:#fbbf24;">&#9679;</span> Above-average BMI ('+bmi.toFixed(1)+') - moderate impact on detection time');
+            else factors.push('<span style="color:#4ade80;">&#9679;</span> Normal BMI ('+bmi.toFixed(1)+') - no significant impact on detection');
+
+            const freqLabels = ['', 'Very rare', 'Occasional', 'Light weekly', 'Moderate', 'Regular', 'Daily', 'Heavy daily'];
+            const amountLabels = ['', 'Minimal', 'Light', 'Moderate', 'Heavy', 'Very heavy'];
+            const freqVal = inputs.freq;
+            const amountVal = inputs.amount;
+
+            if (freqVal >= 6) factors.push('<span style="color:#f87171;">&#9679;</span> ' + freqLabels[freqVal] + ' frequency - consistent exposure builds high baseline');
+            else if (freqVal >= 4) factors.push('<span style="color:#fbbf24;">&#9679;</span> ' + freqLabels[freqVal] + ' frequency - moderate metabolite accumulation');
+            else factors.push('<span style="color:#4ade80;">&#9679;</span> ' + freqLabels[freqVal] + ' frequency - lower accumulation expected');
+
+            if (amountVal >= 4) factors.push('<span style="color:#f87171;">&#9679;</span> ' + amountLabels[amountVal] + ' amount per session - higher peak concentrations');
+            else if (amountVal >= 2) factors.push('<span style="color:#fbbf24;">&#9679;</span> ' + amountLabels[amountVal] + ' amount per session');
+            else factors.push('<span style="color:#4ade80;">&#9679;</span> ' + amountLabels[amountVal] + ' amount per session - low peak concentrations');
+
+            if (inputs.duration >= 4) factors.push('<span style="color:#f87171;">&#9679;</span> Long-term use (' + ['','<1mo','1-3mo','3-12mo','1-5yr','5+yr'][inputs.duration] + ') - significant fat tissue accumulation');
+            else if (inputs.duration >= 2) factors.push('<span style="color:#fbbf24;">&#9679;</span> Medium-term use (' + ['','<1mo','1-3mo','3-12mo','1-5yr','5+yr'][inputs.duration] + ')');
+
+            factors.push('<span style="color:#7eb8ff;">&#9679;</span> Rapid concentration drop in first 3 days, then gradual decline');
+            factors.push('<span style="color:#7eb8ff;">&#9679;</span> 40% of users show peak concentration up to 2.9 days after last use');
+
+            document.getElementById('factorsList').innerHTML = factors.join('<br>');
+
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function drawChart(group, initialConc, daysSince, bmi) {
+            const canvas = document.getElementById('chartCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // High DPI
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+            ctx.scale(dpr, dpr);
+
+            const w = rect.width;
+            const h = rect.height;
+            const pad = { top: 20, right: 16, bottom: 30, left: 45 };
+            const plotW = w - pad.left - pad.right;
+            const plotH = h - pad.top - pad.bottom;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Get curve data
+            const curve = groupData[group].concCurve;
+            const scale = initialConc / curve[0];
+            const scaledCurve = curve.map(v => v * scale);
+
+            // BMI adjustment - stretch curve for higher BMI
+            const bmiScale = 1 + Math.max(0, (bmi - 25) * 0.015);
+            const adjustedCurve = [];
+            for (let i = 0; i < 31; i++) {
+                const srcIdx = i / bmiScale;
+                const lo = Math.floor(srcIdx);
+                const hi = Math.min(lo + 1, scaledCurve.length - 1);
+                const frac = srcIdx - lo;
+                adjustedCurve.push(scaledCurve[lo] * (1 - frac) + scaledCurve[hi] * frac);
+            }
+
+            const maxConc = Math.max(...adjustedCurve) * 1.1;
+
+            // Grid lines
+            ctx.strokeStyle = '#2a2a4a';
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i <= 4; i++) {
+                const y = pad.top + (plotH / 4) * i;
+                ctx.beginPath();
+                ctx.moveTo(pad.left, y);
+                ctx.lineTo(pad.left + plotW, y);
+                ctx.stroke();
+
+                ctx.fillStyle = '#666';
+                ctx.font = '10px sans-serif';
+                ctx.textAlign = 'right';
+                const val = maxConc - (maxConc / 4) * i;
+                ctx.fillText(Math.round(val), pad.left - 6, y + 4);
+            }
+
+            // X-axis labels
+            ctx.fillStyle = '#666';
+            ctx.textAlign = 'center';
+            for (let d = 0; d <= 30; d += 5) {
+                const x = pad.left + (d / 30) * plotW;
+                ctx.fillText(d, x, h - 8);
+            }
+
+            // Threshold lines: 150, 50, 15 ng/mg
+            const thresholds = [
+                { val: 150, color: '#ff6b6b', label: '150' },
+                { val: 50, color: '#f87171', label: '50' },
+                { val: 15, color: '#4ade80', label: '15' }
+            ];
+            thresholds.forEach(t => {
+                if (t.val < maxConc) {
+                    const ty = pad.top + plotH * (1 - t.val / maxConc);
+                    ctx.strokeStyle = t.color;
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([5, 5]);
+                    ctx.beginPath();
+                    ctx.moveTo(pad.left, ty);
+                    ctx.lineTo(pad.left + plotW, ty);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    // Label on right side
+                    ctx.fillStyle = t.color;
+                    ctx.font = 'bold 9px sans-serif';
+                    ctx.textAlign = 'right';
+                    ctx.fillText(t.label, pad.left + plotW, ty - 3);
+                }
+            });
+
+            // Draw curve
+            ctx.strokeStyle = '#7eb8ff';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            for (let i = 0; i < adjustedCurve.length; i++) {
+                const x = pad.left + (i / 30) * plotW;
+                const y = pad.top + plotH * (1 - adjustedCurve[i] / maxConc);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Fill under curve
+            const lastIdx = adjustedCurve.length - 1;
+            ctx.lineTo(pad.left + (lastIdx / 30) * plotW, pad.top + plotH);
+            ctx.lineTo(pad.left, pad.top + plotH);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(126, 184, 255, 0.1)';
+            ctx.fill();
+
+            // Numeric value labels on curve at key days
+            const labelDays = [0, 1, 2, 3, 5, 7, 10, 14, 21, 28];
+            ctx.font = 'bold 9px sans-serif';
+            ctx.textAlign = 'center';
+            let prevLabelY = -100;
+            labelDays.forEach(d => {
+                if (d >= adjustedCurve.length) return;
+                const val = adjustedCurve[d];
+                const x = pad.left + (d / 30) * plotW;
+                const y = pad.top + plotH * (1 - val / maxConc);
+                // Draw dot
+                ctx.fillStyle = '#7eb8ff';
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.fill();
+                // Draw numeric label if not overlapping
+                let labelY = y - 10;
+                if (Math.abs(labelY - prevLabelY) < 12) labelY = y + 14;
+                ctx.fillStyle = '#ccc';
+                const displayVal = val >= 10 ? Math.round(val) : val.toFixed(1);
+                ctx.fillText(displayVal, x, labelY);
+                prevLabelY = labelY;
+            });
+
+            // Current day marker
+            if (daysSince <= 30) {
+                const dx = pad.left + (daysSince / 30) * plotW;
+                ctx.strokeStyle = '#fbbf24';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath();
+                ctx.moveTo(dx, pad.top);
+                ctx.lineTo(dx, pad.top + plotH);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Current concentration value at marker
+                const dayIdx = Math.min(Math.floor(daysSince), adjustedCurve.length - 1);
+                const frac = daysSince - dayIdx;
+                const nextIdx = Math.min(dayIdx + 1, adjustedCurve.length - 1);
+                const currentConc = adjustedCurve[dayIdx] * (1 - frac) + adjustedCurve[nextIdx] * frac;
+                const cy = pad.top + plotH * (1 - currentConc / maxConc);
+
+                // Highlight dot
+                ctx.fillStyle = '#fbbf24';
+                ctx.beginPath();
+                ctx.arc(dx, cy, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Value label
+                ctx.fillStyle = '#fbbf24';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.textAlign = 'center';
+                const nowVal = currentConc >= 10 ? Math.round(currentConc) : currentConc.toFixed(1);
+                ctx.fillText(nowVal + ' ng/mg', dx, cy - 14);
+                ctx.font = 'bold 10px sans-serif';
+                ctx.fillText('NOW', dx, pad.top - 6);
+            }
+
+            // Y-axis label
+            ctx.save();
+            ctx.translate(10, pad.top + plotH / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillStyle = '#666';
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('ng/mg', 0, 0);
+            ctx.restore();
+
+            // Populate numeric readout below chart
+            const readout = document.getElementById('concReadout');
+            readout.style.display = 'block';
+            let readoutHTML = '<strong style="color:#7eb8ff;">Estimated Concentration by Day:</strong><br>';
+            const allDays = [0, 1, 2, 3, 5, 7, 10, 14, 21, 28];
+            allDays.forEach(d => {
+                if (d >= adjustedCurve.length) return;
+                const val = adjustedCurve[d];
+                const displayVal = val >= 10 ? Math.round(val) : val.toFixed(1);
+                let status150 = val >= 150 ? '<span style="color:#ff6b6b;">ABOVE 150</span>' : '';
+                let status50 = val >= 50 ? '<span style="color:#f87171;">ABOVE 50</span>' : '';
+                let status15 = val >= 15 ? '<span style="color:#fbbf24;">ABOVE 15</span>' : '<span style="color:#4ade80;">BELOW 15</span>';
+                let statusStr = status150 || status50 || status15;
+                const isCurrent = d === Math.floor(daysSince);
+                readoutHTML += `<span${isCurrent ? ' style="color:#fbbf24; font-weight:bold;"' : ''}>Day ${d}: <strong>${displayVal} ng/mg</strong> ${statusStr}${isCurrent ? ' (current)' : ''}</span><br>`;
+            });
+            readout.innerHTML = readoutHTML;
+        }
+
+        // Initial BMI calc
+        updateBMI();
+    </script>
+</body>
+</html>
