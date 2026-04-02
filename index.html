@@ -499,28 +499,35 @@
         </div>
 
         <div class="card">
-            <h2>About This Calculator</h2>
-            <div style="font-size:0.85rem; line-height:1.8; color:#bbb;">
-                <div style="background:#12121f; padding:14px; border-radius:8px; margin-bottom:14px;">
-                    <p style="margin-bottom:4px;">
-                        <strong style="color:#e0e0e0;">Goodwin RS, Darwin WD, Chiang CN, Shih M, Li SH, Huestis MA.</strong>
-                    </p>
-                    <p style="margin-bottom:4px; color:#aaa;">
-                        "Urinary Elimination of 11-Nor-9-carboxy-9-tetrahydrocannabinol in Cannabis Users During Continuously Monitored Abstinence"
-                    </p>
-                    <p style="margin-bottom:8px; color:#888; font-size:0.8rem;">
-                        <em>J Anal Toxicol.</em> 2008;32(8):562-569 &mdash; NIDA, National Institutes of Health
-                    </p>
-                    <a href="https://pubmed.ncbi.nlm.nih.gov/19007501/" target="_blank" rel="noopener" style="color:#7eb8ff; text-decoration:none;">
-                        Read the full study on PubMed &rarr;
-                    </a>
-                </div>
+            <div style="text-align:center; font-size:0.85rem; line-height:1.8; color:#bbb;">
                 <p style="margin-bottom:10px;">
-                    Estimates are based on 60 monitored participants and 6,158 urine specimens collected over up to 30 days of confirmed abstinence. Your usage, amount, duration, and BMI are used to classify you into one of three research groups to predict elimination timelines.
+                    Estimates based on 60 monitored participants and 6,158 urine specimens collected over up to 30 days of confirmed abstinence.
                 </p>
-                <p style="color:#888; font-size:0.8rem;">
-                    Results are population-level estimates. Individual results vary based on metabolism, hydration, diet, and exercise. This is not medical or legal advice.
+                <p style="color:#888; font-size:0.8rem; margin-bottom:14px;">
+                    Results are population-level estimates. Individual results vary. This is not medical or legal advice.
                 </p>
+                <a href="#" onclick="event.preventDefault(); document.getElementById('howItWorks').style.display = document.getElementById('howItWorks').style.display === 'none' ? 'block' : 'none';" style="color:#7eb8ff; text-decoration:none; font-size:0.9rem; font-weight:600;">
+                    How it works &darr;
+                </a>
+                <div id="howItWorks" style="display:none; text-align:left; margin-top:14px;">
+                    <div style="background:#12121f; padding:14px; border-radius:8px; margin-bottom:14px;">
+                        <p style="margin-bottom:4px;">
+                            <strong style="color:#e0e0e0;">Goodwin RS, Darwin WD, Chiang CN, Shih M, Li SH, Huestis MA.</strong>
+                        </p>
+                        <p style="margin-bottom:4px; color:#aaa;">
+                            "Urinary Elimination of 11-Nor-9-carboxy-9-tetrahydrocannabinol in Cannabis Users During Continuously Monitored Abstinence"
+                        </p>
+                        <p style="margin-bottom:8px; color:#888; font-size:0.8rem;">
+                            <em>J Anal Toxicol.</em> 2008;32(8):562-569 &mdash; NIDA, National Institutes of Health
+                        </p>
+                        <a href="https://pubmed.ncbi.nlm.nih.gov/19007501/" target="_blank" rel="noopener" style="color:#7eb8ff; text-decoration:none;">
+                            Read the full study on PubMed &rarr;
+                        </a>
+                    </div>
+                    <p style="margin-bottom:10px;">
+                        Your usage frequency, amount per session, duration of use, and BMI are used to classify you into one of three research groups. Each group has known average detection windows and concentration decay curves derived from the study data. The calculator then adjusts estimates based on your BMI, since higher body fat stores more THC and extends detection time.
+                    </p>
+                </div>
             </div>
         </div>
     </div>
